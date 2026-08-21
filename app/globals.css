@@ -1,0 +1,117 @@
+@import "tailwindcss";
+
+/*
+  HomeHaus design tokens
+  Concept: "quietly smart" — plaster, stone and moss from the room itself,
+  with a single warm brass glow standing in for the ambient light of a
+  smart device living unobtrusively in a beautiful space.
+*/
+
+:root {
+  --color-plaster: #eae5db;   /* page background — warm plaster, not paper-cream */
+  --color-surface: #f6f3ec;   /* card / panel background */
+  --color-surface-raised: #ffffff;
+  --color-ink: #23241e;       /* primary text — warm near-black */
+  --color-ink-soft: #5c5a4d;  /* secondary text */
+  --color-stone: #dad2c2;     /* borders, dividers, muted fills */
+  --color-stone-dark: #b9ae97;
+  --color-moss: #4b5842;      /* brand primary — buttons, links, nav */
+  --color-moss-dark: #333c2c;
+  --color-moss-light: #6c7a61;
+  --color-brass: #c9973f;     /* signature glow accent — smart devices */
+  --color-brass-soft: #e6c98a;
+  --color-clay: #b3562f;      /* sparing — sale badges, destructive-adjacent warmth */
+  --color-error: #a3372a;
+
+  --font-display: var(--font-fraunces);
+  --font-body: var(--font-instrument);
+  --font-mono: var(--font-space-mono);
+}
+
+@theme inline {
+  --color-plaster: var(--color-plaster);
+  --color-surface: var(--color-surface);
+  --color-surface-raised: var(--color-surface-raised);
+  --color-ink: var(--color-ink);
+  --color-ink-soft: var(--color-ink-soft);
+  --color-stone: var(--color-stone);
+  --color-stone-dark: var(--color-stone-dark);
+  --color-moss: var(--color-moss);
+  --color-moss-dark: var(--color-moss-dark);
+  --color-moss-light: var(--color-moss-light);
+  --color-brass: var(--color-brass);
+  --color-brass-soft: var(--color-brass-soft);
+  --color-clay: var(--color-clay);
+  --color-error: var(--color-error);
+
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+  --font-mono: var(--font-mono);
+}
+
+* {
+  border-color: var(--color-stone);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-plaster);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
+}
+
+/* Signature element: the ambient glow — a slow breathing pulse used ONLY
+   to mark smart-home products and live status. Never decorative elsewhere. */
+.glow-dot {
+  position: relative;
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--color-brass);
+  box-shadow: 0 0 0 0 rgba(201, 151, 63, 0.55);
+  animation: glow-breathe 2.6s ease-in-out infinite;
+}
+
+@keyframes glow-breathe {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(201, 151, 63, 0.45);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(201, 151, 63, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glow-dot {
+    animation: none;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* Visible keyboard focus everywhere */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--color-moss);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+::selection {
+  background: var(--color-brass-soft);
+  color: var(--color-ink);
+}

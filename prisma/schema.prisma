@@ -1,0 +1,289 @@
+// HomeHaus — data model
+// Run `npx prisma generate` after cloning, then `npx prisma migrate dev --name init`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------- Auth ----------
+
+enum Role {
+  CUSTOMER
+  ADMIN
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  passwordHash  String
+  name          String
+  role          Role      @default(CUSTOMER)
+  emailVerified Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  sessions      Session[]
+  cart          Cart?
+  orders        Order[]
+  reviews       Review[]
+  favorites     Favorite[]
+  addresses     Address[]
+
+  // brute-force protection
+  failedLoginAttempts Int       @default(0)
+  lockedUntil         DateTime?
+
+  @@index([email])
+}
+
+// Opaque session tokens, hashed at rest — see lib/auth.ts
+model Session {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash    String   @unique
+  userAgent    String?
+  ipAddress    String?
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+
+  @@index([userId])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  email     String
+  tokenHash String   @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([email])
+}
+
+model Address {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  label      String   @default("Home")
+  fullName   String
+  line1      String
+  line2      String?
+  city       String
+  region     String?
+  postalCode String
+  country    String
+  phone      String?
+  isDefault  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  orders     Order[]
+
+  @@index([userId])
+}
+
+// ---------- Catalog ----------
+
+enum ProductStatus {
+  ACTIVE
+  DRAFT
+  ARCHIVED
+}
+
+enum RoomType {
+  LIVING_ROOM
+  BEDROOM
+  KITCHEN
+  BATHROOM
+  ENTRYWAY
+  OFFICE
+  OUTDOOR
+  WHOLE_HOME
+}
+
+enum ProductGroup {
+  DECOR
+  SMART_HOME
+}
+
+model Category {
+  id          String     @id @default(cuid())
+  slug        String     @unique
+  name        String
+  description String?
+  group       ProductGroup
+  products    Product[]
+  createdAt   DateTime   @default(now())
+}
+
+model Product {
+  id             String        @id @default(cuid())
+  slug           String        @unique
+  name           String
+  shortDescription String
+  description    String
+  categoryId     String
+  category       Category      @relation(fields: [categoryId], references: [id])
+  group          ProductGroup
+  room           RoomType[]
+  basePrice      Int           // cents
+  compareAtPrice Int?          // cents, for "was" pricing
+  images         String[]
+  materials      String[]      @default([])
+  smartFeatures  String[]      @default([]) // e.g. "Matter compatible", "App control" — only for SMART_HOME
+  status         ProductStatus @default(ACTIVE)
+  featured       Boolean       @default(false)
+  avgRating      Float         @default(0)
+  reviewCount    Int           @default(0)
+  variants       Variant[]
+  reviews        Review[]
+  favorites      Favorite[]
+  cartItems      CartItem[]
+  orderItems     OrderItem[]
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@index([categoryId])
+  @@index([group])
+  @@index([status])
+}
+
+model Variant {
+  id         String      @id @default(cuid())
+  productId  String
+  product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  sku        String      @unique
+  name       String      // e.g. "Sand / Large"
+  attributes Json        // { color: "Sand", size: "Large" }
+  priceDelta Int         @default(0)
+  stock      Int         @default(0)
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+
+  @@index([productId])
+}
+
+// ---------- Cart ----------
+
+model Cart {
+  id        String     @id @default(cuid())
+  userId    String     @unique
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     CartItem[]
+  updatedAt DateTime   @updatedAt
+}
+
+model CartItem {
+  id        String   @id @default(cuid())
+  cartId    String
+  cart      Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  variantId String?
+  variant   Variant? @relation(fields: [variantId], references: [id])
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now())
+
+  @@unique([cartId, productId, variantId])
+}
+
+// ---------- Orders ----------
+
+enum OrderStatus {
+  PENDING
+  PAID
+  FULFILLED
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+model Order {
+  id              String      @id @default(cuid())
+  orderNumber     String      @unique
+  userId          String
+  user            User        @relation(fields: [userId], references: [id])
+  addressId       String?
+  address         Address?    @relation(fields: [addressId], references: [id])
+  items           OrderItem[]
+  subtotal        Int
+  shipping        Int
+  tax              Int
+  total           Int
+  status          OrderStatus @default(PENDING)
+  stripeSessionId String?     @unique
+  stripePaymentIntentId String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@index([userId])
+  @@index([status])
+}
+
+model OrderItem {
+  id         String   @id @default(cuid())
+  orderId    String
+  order      Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId  String
+  product    Product  @relation(fields: [productId], references: [id])
+  variantId  String?
+  variant    Variant? @relation(fields: [variantId], references: [id])
+  quantity   Int
+  unitPrice  Int
+  nameSnapshot String
+}
+
+// ---------- Social proof ----------
+
+model Review {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rating    Int
+  title     String?
+  comment   String
+  verified  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, productId])
+  @@index([productId])
+}
+
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, productId])
+}
+
+// ---------- AI assistant ----------
+
+model ChatSession {
+  id        String        @id @default(cuid())
+  userId    String?
+  messages  ChatMessage[]
+  createdAt DateTime      @default(now())
+}
+
+model ChatMessage {
+  id        String      @id @default(cuid())
+  sessionId String
+  session   ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  role      String
+  content   Json
+  createdAt DateTime    @default(now())
+
+  @@index([sessionId])
+}
