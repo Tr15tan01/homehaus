@@ -56,7 +56,7 @@ export async function POST(request: Request) {
   const result = streamText({
     model: anthropic("claude-sonnet-5"),
     system: SYSTEM_PROMPT,
-    messages: convertToModelMessages(recentMessages),
+    messages: await convertToModelMessages(recentMessages),
     tools: buildAssistantTools(user?.id ?? null),
     stopWhen: stepCountIs(6),
   });

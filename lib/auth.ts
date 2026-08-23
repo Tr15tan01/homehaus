@@ -6,8 +6,9 @@ import crypto from "node:crypto";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import type { Role, User } from "@prisma/client";
+import { SESSION_COOKIE_NAME } from "@/lib/session-cookie";
 
-export const SESSION_COOKIE_NAME = "homehaus_session";
+export { SESSION_COOKIE_NAME };
 const SESSION_DURATION_MS = 1000 * 60 * 60 * 24 * 30; // 30 days
 const MAX_FAILED_ATTEMPTS = 5;
 const LOCKOUT_MS = 1000 * 60 * 15; // 15 minutes

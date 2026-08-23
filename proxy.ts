@@ -1,15 +1,16 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { SESSION_COOKIE_NAME } from "@/lib/auth";
+import { SESSION_COOKIE_NAME } from "@/lib/session-cookie";
 
-// Middleware runs on the Edge runtime and only checks for the presence of a
-// session cookie, so it can redirect obviously-logged-out visitors quickly.
+// Runs on Node.js runtime (Next.js 16 renamed middleware -> proxy and moved
+// it off the Edge runtime). This only checks for the presence of a session
+// cookie, so it can redirect obviously-logged-out visitors quickly.
 // It is NOT the source of truth for authorization: every protected page and
 // server action independently calls requireUser()/requireAdmin(), which
 // validates the session against the database and checks role. That's what
-// actually protects the data — this middleware is a UX shortcut only.
+// actually protects the data — this proxy is a UX shortcut only.
 const PROTECTED_PREFIXES = ["/account", "/admin", "/checkout"];
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const needsAuth = PROTECTED_PREFIXES.some((p) => pathname.startsWith(p));
