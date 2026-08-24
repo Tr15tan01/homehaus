@@ -15,7 +15,20 @@ tool-calling against the product catalog.
   fulfillment, transactional stock decrement
 - **Vercel AI SDK + Claude** — streaming chat with tool-calling
   (`searchProducts`, `buildRoomSet`, `checkStock`, `addToCart`, etc.)
-- **Tailwind CSS v4** — custom design system, no default theme
+- **Tailwind CSS v4** — custom design system, no default theme, light/dark mode via `next-themes`
+- **Bilingual (English / Georgian)** — cookie-based manual language switch, no auto-detection or machine translation. Product/category content has hand-fillable English + Georgian fields; if Georgian is left blank, the site falls back to English for that field.
+
+## What's new since the first version
+
+If you're updating an existing local copy rather than starting fresh:
+
+- **Schema changed** — added `nameKa`/`descriptionKa`/etc. fields for the bilingual system. Run `npm run db:migrate` again (it'll prompt for a new migration name) and re-run `npm run db:seed` to get Georgian sample content.
+- **Dark mode** — toggle in the header, persisted automatically.
+- **Language switch** — EN/ქარ toggle in the header, next to the theme toggle.
+- **Quick-favorite** — heart icon directly on product cards now, not just the product page.
+- **Recently viewed** — shown on the homepage, tracked client-side only (localStorage), never sent to the server.
+- **Interactive product gallery** — thumbnails are now clickable; add more URLs to a product's `images` array and they'll all show up here automatically.
+
 
 ## Getting started
 
@@ -105,6 +118,11 @@ never places an order on its own.
 - **Variant management UI.** Variants exist in the data model and are
   seeded with real data, but there's no admin UI to add/edit them yet —
   only products. Worth adding if you plan to manage inventory manually.
+- **AI assistant is English-only.** The Claude-powered assistant's system
+  prompt and tool descriptions are in English; it'll still work if a
+  Georgian-speaking visitor types to it, but it wasn't tuned for that.
+  Worth revisiting if the assistant becomes a primary Georgian-language
+  entry point rather than a secondary feature.
 
 ## Project structure
 

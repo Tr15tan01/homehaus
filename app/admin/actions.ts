@@ -15,6 +15,30 @@ function parseListField(value: FormDataEntryValue | null): string[] {
     .filter(Boolean);
 }
 
+function buildProductInput(formData: FormData) {
+  return {
+    name: formData.get("name"),
+    nameKa: formData.get("nameKa") || undefined,
+    slug: formData.get("slug"),
+    shortDescription: formData.get("shortDescription"),
+    shortDescriptionKa: formData.get("shortDescriptionKa") || undefined,
+    description: formData.get("description"),
+    descriptionKa: formData.get("descriptionKa") || undefined,
+    categoryId: formData.get("categoryId"),
+    group: formData.get("group"),
+    room: formData.getAll("room"),
+    basePrice: formData.get("basePrice"),
+    compareAtPrice: formData.get("compareAtPrice") || undefined,
+    images: parseListField(formData.get("images")),
+    materials: parseListField(formData.get("materials")),
+    materialsKa: parseListField(formData.get("materialsKa")),
+    smartFeatures: parseListField(formData.get("smartFeatures")),
+    smartFeaturesKa: parseListField(formData.get("smartFeaturesKa")),
+    status: formData.get("status"),
+    featured: formData.get("featured") === "on",
+  };
+}
+
 export type AdminFormState = { error?: string } | undefined;
 
 export async function createProductAction(
@@ -23,22 +47,7 @@ export async function createProductAction(
 ): Promise<AdminFormState> {
   await requireAdmin();
 
-  const parsed = productSchema.safeParse({
-    name: formData.get("name"),
-    slug: formData.get("slug"),
-    shortDescription: formData.get("shortDescription"),
-    description: formData.get("description"),
-    categoryId: formData.get("categoryId"),
-    group: formData.get("group"),
-    room: formData.getAll("room"),
-    basePrice: formData.get("basePrice"),
-    compareAtPrice: formData.get("compareAtPrice") || undefined,
-    images: parseListField(formData.get("images")),
-    materials: parseListField(formData.get("materials")),
-    smartFeatures: parseListField(formData.get("smartFeatures")),
-    status: formData.get("status"),
-    featured: formData.get("featured") === "on",
-  });
+  const parsed = productSchema.safeParse(buildProductInput(formData));
 
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid product data." };
@@ -63,22 +72,7 @@ export async function updateProductAction(
 ): Promise<AdminFormState> {
   await requireAdmin();
 
-  const parsed = productSchema.safeParse({
-    name: formData.get("name"),
-    slug: formData.get("slug"),
-    shortDescription: formData.get("shortDescription"),
-    description: formData.get("description"),
-    categoryId: formData.get("categoryId"),
-    group: formData.get("group"),
-    room: formData.getAll("room"),
-    basePrice: formData.get("basePrice"),
-    compareAtPrice: formData.get("compareAtPrice") || undefined,
-    images: parseListField(formData.get("images")),
-    materials: parseListField(formData.get("materials")),
-    smartFeatures: parseListField(formData.get("smartFeatures")),
-    status: formData.get("status"),
-    featured: formData.get("featured") === "on",
-  });
+  const parsed = productSchema.safeParse(buildProductInput(formData));
 
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid product data." };

@@ -1,13 +1,17 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getProductBySlug, getRelatedProducts } from "@/lib/products";
 import { getCurrentUser } from "@/lib/auth";
+import { getLocale, pick, pickList } from "@/lib/locale";
+import { getDictionary } from "@/lib/i18n";
+import { getFavoriteProductIds } from "@/lib/favorites";
 import { formatPrice } from "@/lib/utils";
 import AddToCartForm from "@/components/product/add-to-cart-form";
 import ProductCard from "@/components/product/product-card";
+import ProductGallery from "@/components/product/product-gallery";
 import ReviewForm from "@/components/product/review-form";
+import TrackProductView from "@/components/product/track-product-view";
 
 export async function generateMetadata({
   params,
@@ -35,14 +39,22 @@ export default async function ProductPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const [product, user] = await Promise.all([
-    getProductBySlug(slug),
-    getCurrentUser(),
-  ]);
+  const locale = await getLocale();
+  const dict = getDictionary(locale);
+
+  const [product, user] = await Promise.all([getProductBySlug(slug), getCurrentUser()]);
 
   if (!product) notFound();
 
-  const related = await getRelatedProducts(product.id, product.categoryId);
+  const [related, favoriteIds] = await Promise.all([
+    getRelatedProducts(product.id, product.categoryId),
+    getFavoriteProductIds(user?.id ?? null),
+  ]);
+
+  const name = pick(locale, product.name, product.nameKa);
+  const description = pick(locale, product.description, product.descriptionKa);
+  const materials = pickList(locale, product.materials, product.materialsKa);
+  const smartFeatures = pickList(locale, product.smartFeatures, product.smartFeaturesKa);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -56,9 +68,10 @@ export default async function ProductPage({
       "@type": "Offer",
       priceCurrency: "USD",
       price: (product.basePrice / 100).toFixed(2),
-      availability: product.variants.some((v) => v.stock > 0) || product.variants.length === 0
-        ? "https://schema.org/InStock"
-        : "https://schema.org/OutOfStock",
+      availability:
+        product.variants.some((v) => v.stock > 0) || product.variants.length === 0
+          ? "https://schema.org/InStock"
+          : "https://schema.org/OutOfStock",
       url: `${process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"}/products/${product.slug}`,
     },
     ...(product.reviewCount > 0
@@ -78,47 +91,35 @@ export default async function ProductPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      <TrackProductView
+        slug={product.slug}
+        name={name}
+        price={product.basePrice}
+        image={product.images[0]}
+      />
 
       <nav className="mb-8 text-sm text-ink-soft" aria-label="Breadcrumb">
         <Link href="/products" className="hover:text-ink">
-          Shop
+          {dict.home.shopAll}
         </Link>{" "}
-        / <span className="text-ink">{product.name}</span>
+        / <span className="text-ink">{name}</span>
       </nav>
 
       <div className="grid gap-12 md:grid-cols-2">
-        <div className="grid gap-3">
-          <div className="relative aspect-square overflow-hidden rounded-2xl bg-surface">
-            {product.images[0] && (
-              <Image
-                src={product.images[0]}
-                alt={product.name}
-                fill
-                priority
-                sizes="(min-width: 768px) 50vw, 100vw"
-                className="object-cover"
-              />
-            )}
-          </div>
-          {product.images.length > 1 && (
-            <div className="grid grid-cols-4 gap-3">
-              {product.images.slice(1, 5).map((img, i) => (
-                <div key={i} className="relative aspect-square overflow-hidden rounded-xl bg-surface">
-                  <Image src={img} alt="" fill sizes="20vw" className="object-cover" />
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        <ProductGallery images={product.images} alt={name} />
 
         <div>
-          {product.group === "SMART_HOME" && (
-            <span className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-surface px-3 py-1 text-xs font-medium text-ink-soft">
-              <span className="glow-dot" aria-hidden="true" />
-              Smart home
-            </span>
-          )}
-          <h1 className="font-display text-4xl">{product.name}</h1>
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              {product.group === "SMART_HOME" && (
+                <span className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-surface px-3 py-1 text-xs font-medium text-ink-soft">
+                  <span className="glow-dot" aria-hidden="true" />
+                  {dict.product.smartHomeBadge}
+                </span>
+              )}
+              <h1 className="font-display text-4xl">{name}</h1>
+            </div>
+          </div>
 
           {product.reviewCount > 0 && (
             <p className="mt-2 text-sm text-ink-soft">
@@ -136,17 +137,17 @@ export default async function ProductPage({
             )}
           </div>
 
-          <p className="mt-6 text-ink-soft">{product.description}</p>
+          <p className="mt-6 text-ink-soft">{description}</p>
 
-          {product.materials.length > 0 && (
+          {materials.length > 0 && (
             <p className="mt-4 text-sm text-ink-soft">
-              <span className="text-ink">Materials:</span> {product.materials.join(", ")}
+              <span className="text-ink">{dict.product.materials}:</span> {materials.join(", ")}
             </p>
           )}
 
-          {product.smartFeatures.length > 0 && (
+          {smartFeatures.length > 0 && (
             <ul className="mt-4 space-y-1.5 font-mono text-xs text-ink-soft">
-              {product.smartFeatures.map((f) => (
+              {smartFeatures.map((f) => (
                 <li key={f} className="flex items-center gap-2">
                   <span className="glow-dot" aria-hidden="true" />
                   {f}
@@ -155,27 +156,30 @@ export default async function ProductPage({
             </ul>
           )}
 
-          <div className="mt-8">
-            <AddToCartForm
-              productId={product.id}
-              variants={product.variants.map((v) => ({
-                id: v.id,
-                name: v.name,
-                stock: v.stock,
-              }))}
-              isAuthenticated={Boolean(user)}
-              nextPath={`/products/${product.slug}`}
-            />
+          <div className="mt-8 flex items-center gap-3">
+            <div className="flex-1">
+              <AddToCartForm
+                productId={product.id}
+                variants={product.variants.map((v) => ({
+                  id: v.id,
+                  name: pick(locale, v.name, v.nameKa),
+                  stock: v.stock,
+                }))}
+                isAuthenticated={Boolean(user)}
+                nextPath={`/products/${product.slug}`}
+                labels={dict.product}
+              />
+            </div>
           </div>
         </div>
       </div>
 
       {/* Reviews */}
       <section className="mt-20 border-t border-stone pt-10">
-        <h2 className="font-display text-2xl">Reviews</h2>
+        <h2 className="font-display text-2xl">{dict.product.reviews}</h2>
 
         {product.reviews.length === 0 ? (
-          <p className="mt-4 text-ink-soft">No reviews yet — be the first.</p>
+          <p className="mt-4 text-ink-soft">{dict.product.noReviews}</p>
         ) : (
           <ul className="mt-6 space-y-6">
             {product.reviews.map((review) => (
@@ -184,7 +188,7 @@ export default async function ProductPage({
                   <span className="text-sm font-medium">{review.user.name}</span>
                   {review.verified && (
                     <span className="rounded-full bg-surface px-2 py-0.5 text-[11px] text-ink-soft">
-                      Verified purchase
+                      {dict.product.verifiedPurchase}
                     </span>
                   )}
                 </div>
@@ -198,25 +202,35 @@ export default async function ProductPage({
 
         {user ? (
           <div className="mt-10">
-            <h3 className="mb-3 font-medium">Write a review</h3>
+            <h3 className="mb-3 font-medium">{dict.product.writeReview}</h3>
             <ReviewForm productId={product.id} />
           </div>
         ) : (
           <p className="mt-6 text-sm text-ink-soft">
-            <Link href={`/login?next=/products/${product.slug}`} className="text-moss underline underline-offset-2">
-              Sign in
+            <Link
+              href={`/login?next=/products/${product.slug}`}
+              className="text-moss underline underline-offset-2"
+            >
+              {dict.nav.signIn}
             </Link>{" "}
-            to write a review.
+            — {dict.product.signInToReview}
           </p>
         )}
       </section>
 
       {related.length > 0 && (
         <section className="mt-20">
-          <h2 className="mb-6 font-display text-2xl">You might also like</h2>
+          <h2 className="mb-6 font-display text-2xl">{dict.product.youMightAlsoLike}</h2>
           <div className="grid grid-cols-2 gap-x-5 gap-y-8 md:grid-cols-4">
             {related.map((p) => (
-              <ProductCard key={p.id} product={p} />
+              <ProductCard
+                key={p.id}
+                product={p}
+                locale={locale}
+                isFavorited={favoriteIds.has(p.id)}
+                isAuthenticated={Boolean(user)}
+                smartBadgeLabel={dict.product.smartHomeBadge}
+              />
             ))}
           </div>
         </section>

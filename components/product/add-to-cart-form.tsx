@@ -4,17 +4,20 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { addToCartAction } from "@/app/(shop)/actions";
 import SubmitButton from "@/components/ui/submit-button";
+import type { Dictionary } from "@/lib/i18n";
 
 export default function AddToCartForm({
   productId,
   variants,
   isAuthenticated,
   nextPath,
+  labels,
 }: {
   productId: string;
   variants: { id: string; name: string; stock: number }[];
   isAuthenticated: boolean;
   nextPath: string;
+  labels: Pick<Dictionary["product"], "option" | "outOfStock" | "adding" | "addToCart">;
 }) {
   const router = useRouter();
   const [variantId, setVariantId] = useState(variants[0]?.id ?? "");
@@ -37,7 +40,7 @@ export default function AddToCartForm({
       {variants.length > 0 && (
         <div className="space-y-1.5">
           <label htmlFor="variant" className="text-sm font-medium text-ink">
-            Option
+            {labels.option}
           </label>
           <select
             id="variant"
@@ -48,15 +51,15 @@ export default function AddToCartForm({
           >
             {variants.map((v) => (
               <option key={v.id} value={v.id} disabled={v.stock === 0}>
-                {v.name} {v.stock === 0 ? "— Out of stock" : ""}
+                {v.name} {v.stock === 0 ? `— ${labels.outOfStock}` : ""}
               </option>
             ))}
           </select>
         </div>
       )}
 
-      <SubmitButton className="w-full" pendingText="Adding…">
-        {outOfStock ? "Out of stock" : "Add to cart"}
+      <SubmitButton className="w-full" pendingText={labels.adding}>
+        {outOfStock ? labels.outOfStock : labels.addToCart}
       </SubmitButton>
     </form>
   );

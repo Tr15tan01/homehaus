@@ -34,9 +34,12 @@ export default async function EditProductPage({
           submitLabel="Save changes"
           defaults={{
             name: product.name,
+            nameKa: product.nameKa,
             slug: product.slug,
             shortDescription: product.shortDescription,
+            shortDescriptionKa: product.shortDescriptionKa,
             description: product.description,
+            descriptionKa: product.descriptionKa,
             categoryId: product.categoryId,
             group: product.group,
             room: product.room,
@@ -44,7 +47,9 @@ export default async function EditProductPage({
             compareAtPrice: product.compareAtPrice,
             images: product.images,
             materials: product.materials,
+            materialsKa: product.materialsKa,
             smartFeatures: product.smartFeatures,
+            smartFeaturesKa: product.smartFeaturesKa,
             status: product.status,
             featured: product.featured,
           }}

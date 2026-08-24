@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { listProducts, listCategories } from "@/lib/products";
+import { getCurrentUser } from "@/lib/auth";
+import { getLocale, pick } from "@/lib/locale";
+import { getDictionary } from "@/lib/i18n";
+import { getFavoriteProductIds } from "@/lib/favorites";
 import ProductCard from "@/components/product/product-card";
 import type { ProductGroup, RoomType } from "@prisma/client";
 import { cn } from "@/lib/utils";
@@ -42,8 +46,11 @@ export default async function ProductsPage({
 }) {
   const params = await searchParams;
   const page = Number(params.page ?? "1") || 1;
+  const locale = await getLocale();
+  const dict = getDictionary(locale);
+  const user = await getCurrentUser();
 
-  const [{ items, pageCount, total }, categories] = await Promise.all([
+  const [{ items, pageCount, total }, categories, favoriteIds] = await Promise.all([
     listProducts({
       group: params.group as ProductGroup | undefined,
       categorySlug: params.category,
@@ -53,6 +60,7 @@ export default async function ProductsPage({
       page,
     }),
     listCategories(),
+    getFavoriteProductIds(user?.id ?? null),
   ]);
 
   const buildHref = (overrides: Partial<SearchParams>) => {
@@ -67,10 +75,10 @@ export default async function ProductsPage({
     <div className="mx-auto max-w-6xl px-6 py-12">
       <h1 className="font-display text-4xl">
         {params.group === "SMART_HOME"
-          ? "Smart Home"
+          ? dict.nav.smartHome
           : params.group === "DECOR"
-            ? "Decor"
-            : "Shop All"}
+            ? dict.nav.decor
+            : dict.home.shopAll}
       </h1>
       <p className="mt-2 text-ink-soft">{total} pieces</p>
 
@@ -79,13 +87,13 @@ export default async function ProductsPage({
           All
         </FilterPill>
         <FilterPill href={buildHref({ group: "DECOR" })} active={params.group === "DECOR"}>
-          Decor
+          {dict.nav.decor}
         </FilterPill>
         <FilterPill
           href={buildHref({ group: "SMART_HOME" })}
           active={params.group === "SMART_HOME"}
         >
-          Smart Home
+          {dict.nav.smartHome}
         </FilterPill>
         <span className="mx-2 h-4 w-px bg-stone" aria-hidden="true" />
         {categories.map((c) => (
@@ -94,7 +102,7 @@ export default async function ProductsPage({
             href={buildHref({ category: c.slug })}
             active={params.category === c.slug}
           >
-            {c.name}
+            {pick(locale, c.name, c.nameKa)}
           </FilterPill>
         ))}
       </div>
@@ -113,7 +121,14 @@ export default async function ProductsPage({
       ) : (
         <div className="mt-8 grid grid-cols-2 gap-x-5 gap-y-10 md:grid-cols-3 lg:grid-cols-4">
           {items.map((product) => (
-            <ProductCard key={product.id} product={product} />
+            <ProductCard
+              key={product.id}
+              product={product}
+              locale={locale}
+              isFavorited={favoriteIds.has(product.id)}
+              isAuthenticated={Boolean(user)}
+              smartBadgeLabel={dict.product.smartHomeBadge}
+            />
           ))}
         </div>
       )}

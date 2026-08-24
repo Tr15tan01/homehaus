@@ -3,6 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { requireUserOrRedirect } from "@/lib/auth";
 import { getOrCreateCart, cartTotals } from "@/lib/cart";
+import { getLocale, pick } from "@/lib/locale";
 import { formatPrice } from "@/lib/utils";
 import { updateCartItemAction, removeCartItemAction } from "@/app/(shop)/actions";
 import SubmitButton from "@/components/ui/submit-button";
@@ -14,7 +15,7 @@ export const metadata: Metadata = {
 
 export default async function CartPage() {
   const user = await requireUserOrRedirect();
-  const cart = await getOrCreateCart(user.id);
+  const [cart, locale] = await Promise.all([getOrCreateCart(user.id), getLocale()]);
   const totals = cartTotals(cart.items);
 
   return (
@@ -40,7 +41,7 @@ export default async function CartPage() {
                   {item.product.images[0] && (
                     <Image
                       src={item.product.images[0]}
-                      alt={item.product.name}
+                      alt={pick(locale, item.product.name, item.product.nameKa)}
                       fill
                       sizes="96px"
                       className="object-cover"
@@ -53,10 +54,12 @@ export default async function CartPage() {
                       href={`/products/${item.product.slug}`}
                       className="text-sm font-medium hover:underline"
                     >
-                      {item.product.name}
+                      {pick(locale, item.product.name, item.product.nameKa)}
                     </Link>
                     {item.variant && (
-                      <p className="text-sm text-ink-soft">{item.variant.name}</p>
+                      <p className="text-sm text-ink-soft">
+                        {pick(locale, item.variant.name, item.variant.nameKa)}
+                      </p>
                     )}
                     <p className="mt-1 text-sm text-ink-soft">
                       {formatPrice(item.product.basePrice + (item.variant?.priceDelta ?? 0))}

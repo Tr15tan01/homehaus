@@ -28,6 +28,30 @@
   --font-mono: var(--font-space-mono);
 }
 
+/*
+  Dark mode: the room at night. Plaster becomes a deep, warm charcoal
+  (never pure black — this is still a "room", not a code editor), and the
+  brass glow gets to do the thing it's named for: it reads brighter and
+  more alive against dark walls, exactly like a device's ambient light
+  actually would in a dark room.
+*/
+.dark {
+  --color-plaster: #1c1b17;
+  --color-surface: #262420;
+  --color-surface-raised: #2e2b26;
+  --color-ink: #ede8dd;
+  --color-ink-soft: #a8a196;
+  --color-stone: #3c3831;
+  --color-stone-dark: #4d483f;
+  --color-moss: #8ba07e;
+  --color-moss-dark: #a9bc9d;
+  --color-moss-light: #6c7a61;
+  --color-brass: #e0ac52;
+  --color-brass-soft: #f0cb8c;
+  --color-clay: #d97b52;
+  --color-error: #e2695a;
+}
+
 @theme inline {
   --color-plaster: var(--color-plaster);
   --color-surface: var(--color-surface);

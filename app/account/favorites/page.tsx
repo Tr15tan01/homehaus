@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { requireUserOrRedirect } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getLocale } from "@/lib/locale";
+import { getDictionary } from "@/lib/i18n";
 import ProductCard from "@/components/product/product-card";
 
 export const metadata: Metadata = {
@@ -10,6 +12,9 @@ export const metadata: Metadata = {
 
 export default async function FavoritesPage() {
   const user = await requireUserOrRedirect();
+  const locale = await getLocale();
+  const dict = getDictionary(locale);
+
   const favorites = await prisma.favorite.findMany({
     where: { userId: user.id },
     include: { product: true },
@@ -25,7 +30,14 @@ export default async function FavoritesPage() {
       ) : (
         <div className="mt-8 grid grid-cols-2 gap-x-5 gap-y-10 md:grid-cols-4">
           {favorites.map((f) => (
-            <ProductCard key={f.id} product={f.product} />
+            <ProductCard
+              key={f.id}
+              product={f.product}
+              locale={locale}
+              isFavorited
+              isAuthenticated
+              smartBadgeLabel={dict.product.smartHomeBadge}
+            />
           ))}
         </div>
       )}

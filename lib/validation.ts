@@ -41,6 +41,7 @@ export const reviewSchema = z.object({
 
 export const productSchema = z.object({
   name: z.string().trim().min(1).max(200),
+  nameKa: z.string().trim().max(200).optional().or(z.literal("")),
   slug: z
     .string()
     .trim()
@@ -48,7 +49,9 @@ export const productSchema = z.object({
     .max(200)
     .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Use lowercase letters, numbers, and hyphens only."),
   shortDescription: z.string().trim().min(1).max(300),
+  shortDescriptionKa: z.string().trim().max(300).optional().or(z.literal("")),
   description: z.string().trim().min(1).max(5000),
+  descriptionKa: z.string().trim().max(5000).optional().or(z.literal("")),
   categoryId: z.string().min(1, "Choose a category."),
   group: z.enum(["DECOR", "SMART_HOME"]),
   room: z.array(
@@ -67,7 +70,9 @@ export const productSchema = z.object({
   compareAtPrice: z.coerce.number().int().min(0).optional(),
   images: z.array(z.string().url()).min(1, "Add at least one image URL."),
   materials: z.array(z.string()).default([]),
+  materialsKa: z.array(z.string()).default([]),
   smartFeatures: z.array(z.string()).default([]),
+  smartFeaturesKa: z.array(z.string()).default([]),
   status: z.enum(["ACTIVE", "DRAFT", "ARCHIVED"]).default("DRAFT"),
   featured: z.boolean().default(false),
 });

@@ -72,6 +72,7 @@ export async function toggleFavoriteAction(formData: FormData) {
   }
 
   revalidatePath("/account/favorites");
+  revalidatePath("/", "layout");
 }
 
 export type ReviewFormState = { error?: string } | undefined;

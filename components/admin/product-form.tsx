@@ -17,9 +17,12 @@ const ROOMS = [
 
 type ProductDefaults = {
   name?: string;
+  nameKa?: string | null;
   slug?: string;
   shortDescription?: string;
+  shortDescriptionKa?: string | null;
   description?: string;
+  descriptionKa?: string | null;
   categoryId?: string;
   group?: string;
   room?: string[];
@@ -27,7 +30,9 @@ type ProductDefaults = {
   compareAtPrice?: number | null;
   images?: string[];
   materials?: string[];
+  materialsKa?: string[];
   smartFeatures?: string[];
+  smartFeaturesKa?: string[];
   status?: string;
   featured?: boolean;
 };
@@ -46,22 +51,29 @@ export default function ProductForm({
   const [state, formAction] = useActionState<AdminFormState, FormData>(action, undefined);
 
   return (
-    <form action={formAction} className="max-w-2xl space-y-5">
+    <form action={formAction} className="max-w-3xl space-y-6">
       {state?.error && (
         <p role="alert" className="rounded-lg border border-error/30 bg-error/5 px-4 py-3 text-sm text-error">
           {state.error}
         </p>
       )}
 
-      <Field label="Name">
+      <p className="text-xs text-ink-soft">
+        English fields are required. Georgian fields are optional — if left
+        blank, the site falls back to English for that field. Nothing here
+        is auto-translated; fill in both by hand.
+      </p>
+
+      <BilingualField label="Name" required>
         <input name="name" defaultValue={defaults?.name} required className="input" />
-      </Field>
+        <input name="nameKa" defaultValue={defaults?.nameKa ?? ""} className="input" dir="auto" />
+      </BilingualField>
 
       <Field label="Slug (URL-safe, unique)">
         <input name="slug" defaultValue={defaults?.slug} required className="input" />
       </Field>
 
-      <Field label="Short description">
+      <BilingualField label="Short description" required>
         <input
           name="shortDescription"
           defaultValue={defaults?.shortDescription}
@@ -69,9 +81,16 @@ export default function ProductForm({
           maxLength={300}
           className="input"
         />
-      </Field>
+        <input
+          name="shortDescriptionKa"
+          defaultValue={defaults?.shortDescriptionKa ?? ""}
+          maxLength={300}
+          className="input"
+          dir="auto"
+        />
+      </BilingualField>
 
-      <Field label="Full description">
+      <BilingualField label="Full description" required>
         <textarea
           name="description"
           defaultValue={defaults?.description}
@@ -79,7 +98,14 @@ export default function ProductForm({
           rows={5}
           className="input"
         />
-      </Field>
+        <textarea
+          name="descriptionKa"
+          defaultValue={defaults?.descriptionKa ?? ""}
+          rows={5}
+          className="input"
+          dir="auto"
+        />
+      </BilingualField>
 
       <div className="grid grid-cols-2 gap-4">
         <Field label="Category">
@@ -143,17 +169,29 @@ export default function ProductForm({
         <input name="images" defaultValue={defaults?.images?.join(", ")} required className="input" />
       </Field>
 
-      <Field label="Materials (comma-separated)">
+      <BilingualField label="Materials (comma-separated)">
         <input name="materials" defaultValue={defaults?.materials?.join(", ")} className="input" />
-      </Field>
+        <input
+          name="materialsKa"
+          defaultValue={defaults?.materialsKa?.join(", ")}
+          className="input"
+          dir="auto"
+        />
+      </BilingualField>
 
-      <Field label="Smart features (comma-separated, smart-home only)">
+      <BilingualField label="Smart features (comma-separated, smart-home only)">
         <input
           name="smartFeatures"
           defaultValue={defaults?.smartFeatures?.join(", ")}
           className="input"
         />
-      </Field>
+        <input
+          name="smartFeaturesKa"
+          defaultValue={defaults?.smartFeaturesKa?.join(", ")}
+          className="input"
+          dir="auto"
+        />
+      </BilingualField>
 
       <div className="grid grid-cols-2 gap-4">
         <Field label="Status">
@@ -190,6 +228,38 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
     <div className="space-y-1.5">
       <label className="block text-sm font-medium text-ink">{label}</label>
       {children}
+    </div>
+  );
+}
+
+// Renders two inputs side by side — first child is the English field,
+// second is Georgian. Keeps the "fill in both by hand" pattern consistent
+// across every bilingual field in the form.
+function BilingualField({
+  label,
+  required,
+  children,
+}: {
+  label: string;
+  required?: boolean;
+  children: [React.ReactNode, React.ReactNode];
+}) {
+  const [enField, kaField] = children;
+  return (
+    <div className="space-y-1.5">
+      <label className="block text-sm font-medium text-ink">
+        {label} {required && <span className="text-clay">*</span>}
+      </label>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div>
+          <p className="mb-1 text-[11px] uppercase tracking-wide text-ink-soft">English</p>
+          {enField}
+        </div>
+        <div>
+          <p className="mb-1 text-[11px] uppercase tracking-wide text-ink-soft">ქართული (Georgian)</p>
+          {kaField}
+        </div>
+      </div>
     </div>
   );
 }
