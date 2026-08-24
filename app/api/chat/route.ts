@@ -1,5 +1,10 @@
-import { streamText, convertToModelMessages, stepCountIs, type UIMessage } from "ai";
-import { anthropic } from "@ai-sdk/anthropic";
+import {
+  streamText,
+  convertToModelMessages,
+  stepCountIs,
+  type UIMessage,
+} from "ai";
+import { google } from "@ai-sdk/google";
 import { getCurrentUser } from "@/lib/auth";
 import { buildAssistantTools } from "@/lib/assistant-tools";
 import { rateLimit } from "@/lib/rate-limit";
@@ -37,11 +42,11 @@ export async function POST(request: Request) {
     );
   }
 
-  if (!process.env.ANTHROPIC_API_KEY) {
+  if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
     return new Response(
       JSON.stringify({
         error:
-          "The assistant isn't configured yet. Add ANTHROPIC_API_KEY to your environment.",
+          "The assistant isn't configured yet. Add GOOGLE_GENERATIVE_AI_API_KEY to your environment.",
       }),
       { status: 503, headers: { "content-type": "application/json" } },
     );
@@ -54,7 +59,7 @@ export async function POST(request: Request) {
   const recentMessages = messages.slice(-20);
 
   const result = streamText({
-    model: anthropic("claude-sonnet-5"),
+    model: google("gemini-3.7-flash"),
     system: SYSTEM_PROMPT,
     messages: await convertToModelMessages(recentMessages),
     tools: buildAssistantTools(user?.id ?? null),

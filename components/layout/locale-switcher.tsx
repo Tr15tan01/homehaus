@@ -25,7 +25,7 @@ export default function LocaleSwitcher({ locale }: { locale: Locale }) {
         aria-pressed={locale === "en"}
         disabled={isPending}
         className={cn(
-          "px-2.5 py-1 transition",
+          "cursor-pointer px-2.5 py-1 transition disabled:cursor-default",
           locale === "en" ? "bg-moss text-white" : "text-ink-soft hover:text-ink",
         )}
       >
@@ -36,7 +36,7 @@ export default function LocaleSwitcher({ locale }: { locale: Locale }) {
         aria-pressed={locale === "ka"}
         disabled={isPending}
         className={cn(
-          "px-2.5 py-1 transition",
+          "cursor-pointer px-2.5 py-1 transition disabled:cursor-default",
           locale === "ka" ? "bg-moss text-white" : "text-ink-soft hover:text-ink",
         )}
       >

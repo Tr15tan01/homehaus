@@ -20,7 +20,7 @@ export default function ThemeToggle({
     <button
       onClick={() => setTheme(isDark ? "light" : "dark")}
       aria-label={isDark ? labels.light : labels.dark}
-      className="flex h-8 w-8 items-center justify-center rounded-full text-ink-soft transition hover:bg-surface hover:text-ink"
+      className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-ink-soft transition hover:bg-surface hover:text-ink"
     >
       {mounted && (
         <>
