@@ -6,11 +6,11 @@ export const DEFAULT_LOCALE: Locale = "en";
 // to English — used for every product/category field pair (name/nameKa etc).
 // No machine translation anywhere: this only ever selects between two
 // hand-written values, it never generates one.
-export function pick<T extends string | null | undefined>(
-  locale: Locale,
-  en: T,
-  ka: T,
-): NonNullable<T> | T {
+//
+// `en` is typed as a required string (every English field in the schema is
+// required) and `ka` as nullable (every Georgian field is optional) — that
+// asymmetry is exactly what guarantees this always returns a real string.
+export function pick(locale: Locale, en: string, ka: string | null | undefined): string {
   if (locale === "ka" && ka) return ka;
   return en;
 }
