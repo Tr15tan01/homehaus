@@ -4,8 +4,9 @@ import { useActionState } from "react";
 import Link from "next/link";
 import { registerAction, type FormState } from "@/app/(auth)/actions";
 import SubmitButton from "@/components/ui/submit-button";
+import type { Dictionary } from "@/lib/i18n";
 
-export default function RegisterForm() {
+export default function RegisterForm({ dict }: { dict: Dictionary }) {
   const [state, formAction] = useActionState<FormState, FormData>(
     registerAction,
     undefined,
@@ -24,7 +25,7 @@ export default function RegisterForm() {
 
       <div className="space-y-1.5">
         <label htmlFor="name" className="text-sm font-medium text-ink">
-          Name
+          {dict.auth.name}
         </label>
         <input
           id="name"
@@ -38,7 +39,7 @@ export default function RegisterForm() {
 
       <div className="space-y-1.5">
         <label htmlFor="email" className="text-sm font-medium text-ink">
-          Email
+          {dict.auth.email}
         </label>
         <input
           id="email"
@@ -52,7 +53,7 @@ export default function RegisterForm() {
 
       <div className="space-y-1.5">
         <label htmlFor="password" className="text-sm font-medium text-ink">
-          Password
+          {dict.auth.password}
         </label>
         <input
           id="password"
@@ -63,19 +64,17 @@ export default function RegisterForm() {
           minLength={10}
           className="w-full rounded-lg border border-stone bg-surface px-4 py-2.5 text-sm outline-none focus:border-moss"
         />
-        <p className="text-xs text-ink-soft">
-          At least 10 characters, with a letter and a number.
-        </p>
+        <p className="text-xs text-ink-soft">{dict.auth.passwordHint}</p>
       </div>
 
-      <SubmitButton className="w-full" pendingText="Creating account…">
-        Create account
+      <SubmitButton className="w-full" pendingText={dict.auth.creatingAccount}>
+        {dict.auth.createAccount}
       </SubmitButton>
 
       <p className="text-center text-sm text-ink-soft">
-        Already have an account?{" "}
+        {dict.auth.alreadyHaveAccount}{" "}
         <Link href="/login" className="text-moss underline underline-offset-2">
-          Sign in
+          {dict.auth.signIn}
         </Link>
       </p>
     </form>

@@ -16,6 +16,23 @@ export type Dictionary = {
     dashboard: string;
     account: string;
   };
+  auth: {
+    welcomeBack: string;
+    signInSubtitle: string;
+    email: string;
+    password: string;
+    forgotPassword: string;
+    signIn: string;
+    signingIn: string;
+    newToHomeHaus: string;
+    createAccount: string;
+    createAccountTitle: string;
+    createAccountSubtitle: string;
+    name: string;
+    passwordHint: string;
+    creatingAccount: string;
+    alreadyHaveAccount: string;
+  };
   home: {
     heroEyebrow: string;
     heroTitleLine1: string;
@@ -40,6 +57,10 @@ export type Dictionary = {
     trustReturnsSub: string;
     trustSecure: string;
     trustSecureSub: string;
+  };
+  rooms: {
+    title: string;
+    subtitle: string;
   };
   footer: {
     tagline: string;
@@ -90,6 +111,23 @@ const en: Dictionary = {
     dashboard: "Dashboard",
     account: "Account",
   },
+  auth: {
+    welcomeBack: "Welcome back",
+    signInSubtitle: "Sign in to your account.",
+    email: "Email",
+    password: "Password",
+    forgotPassword: "Forgot password?",
+    signIn: "Sign in",
+    signingIn: "Signing in…",
+    newToHomeHaus: "New to HomeHaus?",
+    createAccount: "Create an account",
+    createAccountTitle: "Create your account",
+    createAccountSubtitle: "Join HomeHaus to save favorites and track orders.",
+    name: "Name",
+    passwordHint: "At least 10 characters, with a letter and a number.",
+    creatingAccount: "Creating account…",
+    alreadyHaveAccount: "Already have an account?",
+  },
   home: {
     heroEyebrow: "Home decor & smart devices",
     heroTitleLine1: "Quietly smart,",
@@ -116,6 +154,11 @@ const en: Dictionary = {
     trustReturnsSub: "No questions asked",
     trustSecure: "Secure checkout",
     trustSecureSub: "Powered by Stripe",
+  },
+  rooms: {
+    title: "Shop by room",
+    subtitle:
+      "Every piece is tagged to the rooms it actually works in — browse by space, or describe your room to the assistant for a curated set.",
   },
   footer: {
     tagline:
@@ -167,6 +210,23 @@ const ka: Dictionary = {
     dashboard: "მართვის პანელი",
     account: "ჩემი გვერდი",
   },
+  auth: {
+    welcomeBack: "მოგესალმებით",
+    signInSubtitle: "შედით თქვენს ანგარიშში.",
+    email: "ელფოსტა",
+    password: "პაროლი",
+    forgotPassword: "დაგავიწყდათ პაროლი?",
+    signIn: "შესვლა",
+    signingIn: "მიმდინარეობს შესვლა…",
+    newToHomeHaus: "პირველად ხართ HomeHaus-ზე?",
+    createAccount: "შექმენით ანგარიში",
+    createAccountTitle: "შექმენით ანგარიში",
+    createAccountSubtitle: "შემოუერთდით HomeHaus-ს რჩეულების შესანახად და შეკვეთების სამართავად.",
+    name: "სახელი",
+    passwordHint: "მინიმუმ 10 სიმბოლო, ერთი ასო და ერთი ციფრი მაინც.",
+    creatingAccount: "მიმდინარეობს ანგარიშის შექმნა…",
+    alreadyHaveAccount: "უკვე გაქვთ ანგარიში?",
+  },
   home: {
     heroEyebrow: "საოჯახო დეკორი და ჭკვიანი მოწყობილობები",
     heroTitleLine1: "მშვიდად ჭკვიანი,",
@@ -193,6 +253,11 @@ const ka: Dictionary = {
     trustReturnsSub: "დამატებითი კითხვების გარეშე",
     trustSecure: "უსაფრთხო გადახდა",
     trustSecureSub: "Stripe-ის მეშვეობით",
+  },
+  rooms: {
+    title: "ოთახების მიხედვით",
+    subtitle:
+      "ყოველი ნივთი მონიშნულია იმ ოთახებით, სადაც ის ნამდვილად მუშაობს — დაათვალიერეთ სივრცის მიხედვით, ან უთხარით ასისტენტს თქვენი ოთახის შესახებ შერჩეული კომპლექტისთვის.",
   },
   footer: {
     tagline:
@@ -237,3 +302,28 @@ const dictionaries: Record<Locale, Dictionary> = { en, ka };
 export function getDictionary(locale: Locale): Dictionary {
   return dictionaries[locale];
 }
+
+// Shared across the homepage's room preview grid and the full /rooms page,
+// so both stay in sync from one source instead of duplicating the list.
+export const ROOM_LABELS: Record<Locale, Record<string, string>> = {
+  en: {
+    LIVING_ROOM: "Living Room",
+    BEDROOM: "Bedroom",
+    KITCHEN: "Kitchen",
+    BATHROOM: "Bathroom",
+    ENTRYWAY: "Entryway",
+    OFFICE: "Office",
+    OUTDOOR: "Outdoor",
+    WHOLE_HOME: "Whole Home",
+  },
+  ka: {
+    LIVING_ROOM: "მისაღები ოთახი",
+    BEDROOM: "საძინებელი",
+    KITCHEN: "სამზარეულო",
+    BATHROOM: "სააბაზანო",
+    ENTRYWAY: "წინკარი",
+    OFFICE: "საოფისე",
+    OUTDOOR: "ღია სივრცე",
+    WHOLE_HOME: "მთელი სახლი",
+  },
+};

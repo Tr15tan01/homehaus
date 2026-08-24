@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
+import { getLocale } from "@/lib/locale";
+import { getDictionary } from "@/lib/i18n";
 import RegisterForm from "@/components/auth/register-form";
 
 export const metadata: Metadata = {
@@ -10,17 +12,20 @@ export const metadata: Metadata = {
 };
 
 export default async function RegisterPage() {
-  const user = await getCurrentUser();
+  const [user, locale] = await Promise.all([getCurrentUser(), getLocale()]);
   if (user) redirect("/account");
+  const dict = getDictionary(locale);
 
   return (
     <div className="mx-auto flex min-h-[70vh] max-w-md flex-col justify-center px-6 py-16">
       <Link href="/" className="mb-8 font-display text-2xl">
         HomeHaus
       </Link>
-      <h1 className="mb-1 font-display text-3xl">Create your account</h1>
-      <p className="mb-8 text-ink-soft">Join HomeHaus to save favorites and track orders.</p>
-      <RegisterForm />
+      <h1 className="mb-1 font-display text-3xl">
+        {dict.auth.createAccountTitle}
+      </h1>
+      <p className="mb-8 text-ink-soft">{dict.auth.createAccountSubtitle}</p>
+      <RegisterForm dict={dict} />
     </div>
   );
 }

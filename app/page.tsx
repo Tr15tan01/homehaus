@@ -3,30 +3,29 @@ import Image from "next/image";
 import { listFeaturedProducts, listCategories } from "@/lib/products";
 import { getCurrentUser } from "@/lib/auth";
 import { getLocale, pick } from "@/lib/locale";
-import { getDictionary } from "@/lib/i18n";
+import { getDictionary, ROOM_LABELS } from "@/lib/i18n";
 import { getFavoriteProductIds } from "@/lib/favorites";
 import ProductCard from "@/components/product/product-card";
 import RecentlyViewedStrip from "@/components/product/recently-viewed";
 
 const ROOMS = [
-  { key: "LIVING_ROOM", img: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=800&q=80" },
-  { key: "BEDROOM", img: "https://images.unsplash.com/photo-1615874959474-d609969a20ed?w=800&q=80" },
-  { key: "KITCHEN", img: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?w=800&q=80" },
-  { key: "ENTRYWAY", img: "https://images.unsplash.com/photo-1509644851169-2acc08aa25b5?w=800&q=80" },
+  {
+    key: "LIVING_ROOM",
+    img: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=800&q=80",
+  },
+  {
+    key: "BEDROOM",
+    img: "https://images.unsplash.com/photo-1615874959474-d609969a20ed?w=800&q=80",
+  },
+  {
+    key: "KITCHEN",
+    img: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?w=800&q=80",
+  },
+  {
+    key: "ENTRYWAY",
+    img: "https://images.unsplash.com/photo-1509644851169-2acc08aa25b5?w=800&q=80",
+  },
 ];
-
-const ROOM_LABELS_EN: Record<string, string> = {
-  LIVING_ROOM: "Living Room",
-  BEDROOM: "Bedroom",
-  KITCHEN: "Kitchen",
-  ENTRYWAY: "Entryway",
-};
-const ROOM_LABELS_KA: Record<string, string> = {
-  LIVING_ROOM: "მისაღები ოთახი",
-  BEDROOM: "საძინებელი",
-  KITCHEN: "სამზარეულო",
-  ENTRYWAY: "წინკარი",
-};
 
 export default async function HomePage() {
   const locale = await getLocale();
@@ -39,13 +38,16 @@ export default async function HomePage() {
     getFavoriteProductIds(user?.id ?? null),
   ]);
 
-  const roomLabels = locale === "ka" ? ROOM_LABELS_KA : ROOM_LABELS_EN;
+  const roomLabels = ROOM_LABELS[locale];
 
   return (
     <div>
       {/* Hero — editorial split, signature glow-dot as the live "moment" */}
       <section className="relative overflow-hidden">
-        <div className="pointer-events-none absolute -left-24 -top-24 h-96 w-96 rounded-full bg-brass/10 blur-3xl" aria-hidden="true" />
+        <div
+          className="pointer-events-none absolute -left-24 -top-24 h-96 w-96 rounded-full bg-brass/10 blur-3xl"
+          aria-hidden="true"
+        />
         <div className="mx-auto grid max-w-6xl gap-10 px-6 py-16 md:grid-cols-2 md:items-center md:py-24">
           <div>
             <p className="mb-4 text-sm uppercase tracking-[0.2em] text-ink-soft">
@@ -114,8 +116,13 @@ export default async function HomePage() {
       {/* Shop by room */}
       <section className="mx-auto max-w-6xl px-6 py-16">
         <div className="mb-8 flex items-end justify-between">
-          <h2 className="font-display text-3xl">{dict.home.shopByRoomHeading}</h2>
-          <Link href="/rooms" className="text-sm text-moss underline underline-offset-2">
+          <h2 className="font-display text-3xl">
+            {dict.home.shopByRoomHeading}
+          </h2>
+          <Link
+            href="/rooms"
+            className="text-sm text-moss underline underline-offset-2"
+          >
             {dict.home.viewAllRooms}
           </Link>
         </div>
@@ -146,8 +153,13 @@ export default async function HomePage() {
       {featured.length > 0 && (
         <section className="mx-auto max-w-6xl px-6 py-16">
           <div className="mb-8 flex items-end justify-between">
-            <h2 className="font-display text-3xl">{dict.home.featuredHeading}</h2>
-            <Link href="/products?featured=true" className="text-sm text-moss underline underline-offset-2">
+            <h2 className="font-display text-3xl">
+              {dict.home.featuredHeading}
+            </h2>
+            <Link
+              href="/products?featured=true"
+              className="text-sm text-moss underline underline-offset-2"
+            >
               {dict.home.viewAll}
             </Link>
           </div>
@@ -172,7 +184,10 @@ export default async function HomePage() {
       {/* Assistant callout */}
       <section className="mx-auto max-w-6xl px-6 py-16">
         <div className="relative overflow-hidden flex flex-col items-start gap-6 rounded-3xl bg-moss px-8 py-12 text-plaster md:flex-row md:items-center md:justify-between">
-          <div className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-brass/20 blur-3xl" aria-hidden="true" />
+          <div
+            className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-brass/20 blur-3xl"
+            aria-hidden="true"
+          />
           <div className="relative">
             <p className="mb-2 flex items-center gap-2 text-sm uppercase tracking-[0.2em] text-plaster/70">
               <span className="glow-dot" aria-hidden="true" />
@@ -181,7 +196,9 @@ export default async function HomePage() {
             <h2 className="font-display text-3xl italic md:text-4xl">
               {dict.home.assistantHeading}
             </h2>
-            <p className="mt-3 max-w-md text-plaster/80">{dict.home.assistantBody}</p>
+            <p className="mt-3 max-w-md text-plaster/80">
+              {dict.home.assistantBody}
+            </p>
           </div>
           <p className="relative rounded-full border border-plaster/30 px-5 py-2.5 text-sm text-plaster/70">
             {dict.home.assistantCta}
@@ -191,7 +208,9 @@ export default async function HomePage() {
 
       {categories.length > 0 && (
         <section className="mx-auto max-w-6xl px-6 pb-20">
-          <h2 className="mb-6 font-display text-2xl">{dict.home.categoriesHeading}</h2>
+          <h2 className="mb-6 font-display text-2xl">
+            {dict.home.categoriesHeading}
+          </h2>
           <div className="flex flex-wrap gap-3">
             {categories.map((c) => (
               <Link
@@ -233,34 +252,92 @@ function TrustItem({
 
 function TruckIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M2 6h11v10H2z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
-      <path d="M13 10h5l3 3v3h-8z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
-      <circle cx="6.5" cy="18" r="1.8" stroke="currentColor" strokeWidth="1.6" />
-      <circle cx="17.5" cy="18" r="1.8" stroke="currentColor" strokeWidth="1.6" />
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+    >
+      <path
+        d="M2 6h11v10H2z"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M13 10h5l3 3v3h-8z"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinejoin="round"
+      />
+      <circle
+        cx="6.5"
+        cy="18"
+        r="1.8"
+        stroke="currentColor"
+        strokeWidth="1.6"
+      />
+      <circle
+        cx="17.5"
+        cy="18"
+        r="1.8"
+        stroke="currentColor"
+        strokeWidth="1.6"
+      />
     </svg>
   );
 }
 
 function ReturnIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+    >
       <path
         d="M4 10a8 8 0 1 1 2.3 5.6"
         stroke="currentColor"
         strokeWidth="1.6"
         strokeLinecap="round"
       />
-      <path d="M4 5v5h5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M4 5v5h5"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
 
 function LockIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <rect x="5" y="10" width="14" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.6" />
-      <path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="currentColor" strokeWidth="1.6" />
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+    >
+      <rect
+        x="5"
+        y="10"
+        width="14"
+        height="10"
+        rx="1.5"
+        stroke="currentColor"
+        strokeWidth="1.6"
+      />
+      <path
+        d="M8 10V7a4 4 0 0 1 8 0v3"
+        stroke="currentColor"
+        strokeWidth="1.6"
+      />
     </svg>
   );
 }

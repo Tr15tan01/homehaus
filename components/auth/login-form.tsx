@@ -4,8 +4,9 @@ import { useActionState } from "react";
 import Link from "next/link";
 import { loginAction, type FormState } from "@/app/(auth)/actions";
 import SubmitButton from "@/components/ui/submit-button";
+import type { Dictionary } from "@/lib/i18n";
 
-export default function LoginForm() {
+export default function LoginForm({ dict }: { dict: Dictionary }) {
   const [state, formAction] = useActionState<FormState, FormData>(
     loginAction,
     undefined,
@@ -24,7 +25,7 @@ export default function LoginForm() {
 
       <div className="space-y-1.5">
         <label htmlFor="email" className="text-sm font-medium text-ink">
-          Email
+          {dict.auth.email}
         </label>
         <input
           id="email"
@@ -39,10 +40,10 @@ export default function LoginForm() {
       <div className="space-y-1.5">
         <div className="flex items-center justify-between">
           <label htmlFor="password" className="text-sm font-medium text-ink">
-            Password
+            {dict.auth.password}
           </label>
           <Link href="/forgot-password" className="text-xs text-moss underline underline-offset-2">
-            Forgot password?
+            {dict.auth.forgotPassword}
           </Link>
         </div>
         <input
@@ -55,14 +56,14 @@ export default function LoginForm() {
         />
       </div>
 
-      <SubmitButton className="w-full" pendingText="Signing in…">
-        Sign in
+      <SubmitButton className="w-full" pendingText={dict.auth.signingIn}>
+        {dict.auth.signIn}
       </SubmitButton>
 
       <p className="text-center text-sm text-ink-soft">
-        New to HomeHaus?{" "}
+        {dict.auth.newToHomeHaus}{" "}
         <Link href="/register" className="text-moss underline underline-offset-2">
-          Create an account
+          {dict.auth.createAccount}
         </Link>
       </p>
     </form>
